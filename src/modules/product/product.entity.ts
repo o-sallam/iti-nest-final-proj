@@ -23,7 +23,8 @@ export class Product {
   @Column({ type: 'numeric', precision: 12, scale: 2 })
   price: number;
 
-
+  @Column({ type: 'varchar', length: 100, unique: true })
+  sku: string;
 
   @Column({ default: true })
   isActive: boolean;

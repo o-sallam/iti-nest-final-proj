@@ -8,23 +8,30 @@ import { Inventory } from 'src/modules/inventory/inventory.entity';
 @Injectable()
 export class ProductService {
   constructor(
-    @InjectRepository(Product) private readonly productRepo: Repository<Product>,
-    @InjectRepository(Inventory) private readonly inventoryRepo: Repository<Inventory>,
+    @InjectRepository(Product)
+    private readonly productRepo: Repository<Product>,
+    @InjectRepository(Inventory)
+    private readonly inventoryRepo: Repository<Inventory>,
   ) {}
 
   async create(dto: CreateProductDto) {
-    try{
-      const product =await this.productRepo.create({
+    try {
+      // First, create and save the inventory
+      const inventory = this.inventoryRepo.create({ quantity: dto.quantity });
+      const savedInventory = await this.inventoryRepo.save(inventory);
+      // Then, create the product and assign the saved inventory
+      const product = this.productRepo.create({
         ...dto,
-        inventory:await this.inventoryRepo.create({ quantity: dto.quantity }),
+        inventory: savedInventory,
       });
-      let result= await this.productRepo.save(product);
+      const result = await this.productRepo.save(product);
       return result;
-    }catch(e){
+    } catch (e) {
       console.error('Error creating product:', e);
-      return {error:e.message || 'An error occurred while creating the product.'};
+      return {
+        error: e.message || 'An error occurred while creating the product.',
+      };
     }
-    
   }
 
   findAll() {
@@ -32,11 +39,17 @@ export class ProductService {
   }
 
   findOne(id: number) {
-    return this.productRepo.findOne({ where: { id }, relations: ['inventory'] });
+    return this.productRepo.findOne({
+      where: { id },
+      relations: ['inventory'],
+    });
   }
 
   async update(id: number, dto: UpdateProductDto) {
-    const product = await this.productRepo.findOne({ where: { id }, relations: ['inventory'] });
+    const product = await this.productRepo.findOne({
+      where: { id },
+      relations: ['inventory'],
+    });
     if (!product) return null;
 
     Object.assign(product, dto);
@@ -51,3 +64,4 @@ export class ProductService {
     return this.productRepo.delete(id);
   }
 }
+
