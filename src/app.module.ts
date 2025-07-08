@@ -4,20 +4,17 @@ import { AppService } from './app.service';
 import { ClientModule } from './modules/client/client.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { databaseConfig } from './config/database.config';
-<<<<<<< HEAD
-import { SupplierModule } from './supplier/supplier.module';
-import { PurchaseOrderModule } from './purchase-order/purchase-order.module';
-
-@Module({
-  imports: [TypeOrmModule.forRoot(databaseConfig ), ClientModule, SupplierModule, PurchaseOrderModule],
-=======
+import { SupplierModule } from './modules/supplier/supplier.module';
+import { PurchaseOrderModule } from './modules/purchase-order/purchase-order.module';
 import { ProductModule } from './modules/product/product.module';
+import { InventoryModule } from './modules/inventory/inventory.module';
+import { WarehouseModule } from './modules/warehouse/warehouse.module';
+
 
 @Module({
-  imports: [TypeOrmModule.forRoot(databaseConfig), ClientModule, ProductModule],
->>>>>>> c9cf8b70cc7a6b8ef7942e48e3b7438764347bf5
+  imports: [TypeOrmModule.forRoot(databaseConfig), ClientModule, ProductModule, SupplierModule, PurchaseOrderModule, InventoryModule, WarehouseModule],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }
 

@@ -7,7 +7,6 @@ import {
   OneToOne,
   JoinColumn,
 } from 'typeorm';
-import { Inventory } from 'src/modules/inventory/inventory.entity';
 
 @Entity('products')
 export class Product {
@@ -16,6 +15,9 @@ export class Product {
 
   @Column({ type: 'varchar', length: 255 })
   name: string;
+
+  @Column({ type: 'varchar', length: 100, unique: true })
+  sku: string;
 
   @Column({ type: 'text', nullable: true })
   description: string;
@@ -32,7 +34,5 @@ export class Product {
   @UpdateDateColumn({ type: 'timestamptz' })
   updatedAt: Date;
 
-  @OneToOne(() => Inventory, (inventory) => inventory.product, { cascade: true })
-  @JoinColumn()
-  inventory: Inventory;
+ 
 }
