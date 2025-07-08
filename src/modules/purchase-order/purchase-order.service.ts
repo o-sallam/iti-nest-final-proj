@@ -6,7 +6,7 @@ import { Repository } from 'typeorm';
 import { PurchaseOrder } from './entities/purchase-order.entity';
 import { CreatePurchaseOrderDto } from './dto/create-purchase-order.dto';
 import { UpdatePurchaseOrderDto } from './dto/update-purchase-order.dto';
-import { Supplier } from 'src/supplier/entities/supplier.entity';
+import { Supplier } from '../supplier/entities/supplier.entity';
 
 @Injectable()
 export class PurchaseOrderService {
