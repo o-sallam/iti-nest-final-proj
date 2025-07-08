@@ -22,6 +22,10 @@ export class Client {
   @Column({ type: 'text', nullable: true })
   address: string;
 
-  @CreateDateColumn({ type: 'timestamptz', name: 'created_at', default: () => 'NOW()' })
+  @CreateDateColumn({
+    type: 'timestamptz',
+    name: 'created_at',
+    default: () => 'NOW()',
+  })
   created_at: Date;
 }
