@@ -23,6 +23,8 @@ export class Product {
   @Column({ type: 'numeric', precision: 12, scale: 2 })
   price: number;
 
+
+
   @Column({ default: true })
   isActive: boolean;
 

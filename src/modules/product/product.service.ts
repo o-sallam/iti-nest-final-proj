@@ -13,11 +13,18 @@ export class ProductService {
   ) {}
 
   async create(dto: CreateProductDto) {
-    const product = this.productRepo.create({
-      ...dto,
-      inventory: this.inventoryRepo.create({ quantity: dto.quantity }),
-    });
-    return this.productRepo.save(product);
+    try{
+      const product =await this.productRepo.create({
+        ...dto,
+        inventory:await this.inventoryRepo.create({ quantity: dto.quantity }),
+      });
+      let result= await this.productRepo.save(product);
+      return result;
+    }catch(e){
+      console.error('Error creating product:', e);
+      return {error:e.message || 'An error occurred while creating the product.'};
+    }
+    
   }
 
   findAll() {
