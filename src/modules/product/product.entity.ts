@@ -3,7 +3,11 @@ import {
   PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
+  UpdateDateColumn,
+  OneToOne,
+  JoinColumn,
 } from 'typeorm';
+import { Inventory } from 'src/modules/inventory/inventory.entity';
 
 @Entity('products')
 export class Product {
@@ -19,7 +23,16 @@ export class Product {
   @Column({ type: 'numeric', precision: 12, scale: 2 })
   price: number;
 
-  @CreateDateColumn({ type: 'timestamptz', name: 'created_at' })
-  createdAt: Date;
-}
+  @Column({ default: true })
+  isActive: boolean;
 
+  @CreateDateColumn({ type: 'timestamptz' })
+  createdAt: Date;
+
+  @UpdateDateColumn({ type: 'timestamptz' })
+  updatedAt: Date;
+
+  @OneToOne(() => Inventory, (inventory) => inventory.product, { cascade: true })
+  @JoinColumn()
+  inventory: Inventory;
+}
