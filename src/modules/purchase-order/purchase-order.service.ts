@@ -26,6 +26,12 @@ export class PurchaseOrderService {
     if (!supplier) {
       throw new NotFoundException(`Supplier with ID ${createDto.supplierId} not found`);
     }
+  const remainingAmount = createDto.totalAmount - createDto.paidAmount;
+  if (remainingAmount  !== 0) {
+    supplier.accountBalance += remainingAmount;
+
+    await this.supplierRepository.save(supplier);
+  }
 
     const newOrder = this.purchaseOrderRepository.create({
       ...createDto,

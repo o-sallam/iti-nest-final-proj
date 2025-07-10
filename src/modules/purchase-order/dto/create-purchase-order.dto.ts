@@ -26,8 +26,7 @@ export class CreatePurchaseOrderDto {
   @IsDateString()
   orderDate: string;
 
-  @IsDateString()
-  dueDate: string;
+ 
 
   @IsEnum(['PENDING', 'RECEIVED', 'PAID'])
   status: 'PENDING' | 'RECEIVED' | 'PAID';
@@ -45,6 +44,11 @@ export class CreatePurchaseOrderDto {
   items: PurchaseItemDto[];
 
   @IsNumber()
+paidAmount: number;
+
+
+  @IsNumber()
     totalAmount: number;
+
 
 }

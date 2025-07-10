@@ -1,4 +1,4 @@
-import { IsString, IsEmail, IsOptional, IsIn } from 'class-validator';
+import { IsString, IsEmail, IsOptional, IsIn,IsNumber } from 'class-validator';
 
 export class CreateSupplierDto {
   @IsString()
@@ -27,4 +27,7 @@ export class CreateSupplierDto {
   @IsOptional()
   @IsString()
   notes?: string;
+  @IsNumber()
+  accountBalance:number;
+
 }

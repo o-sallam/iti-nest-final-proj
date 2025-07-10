@@ -29,4 +29,6 @@ export class Supplier {
   @Column({ nullable: true, type: 'text' })
   notes: string;
 
+@Column({ default: 0 })
+accountBalance: number;
 }
