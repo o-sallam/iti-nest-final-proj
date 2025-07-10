@@ -9,7 +9,7 @@ import { PurchaseOrderModule } from './modules/purchase-order/purchase-order.mod
 import { ProductModule } from './modules/product/product.module';
 import { InventoryModule } from './modules/inventory/inventory.module';
 import { WarehouseModule } from './modules/warehouse/warehouse.module';
-import { saleinvoice } from './modules/saleinvoice/saleinvoice.module';
+import { SaleInvoiceModule } from './modules/saleinvoice/saleinvoice.module';
 
 
 @Module({
