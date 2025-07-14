@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { PurchaseOrderService } from './purchase-order.service';
 import { CreatePurchaseOrderDto } from './dto/create-purchase-order.dto';
 import { UpdatePurchaseOrderDto } from './dto/update-purchase-order.dto';
@@ -12,10 +12,27 @@ export class PurchaseOrderController {
     return this.purchaseOrderService.create(createPurchaseOrderDto);
   }
 
-  @Get()
+ /* @Get()
   findAll() {
     return this.purchaseOrderService.findAll();
-  }
+  }*/
+ @Get()
+async findAll(
+  @Query('search') search?: string,
+  @Query('status') status: string = 'all',
+  @Query('page') page: number = 1,
+  @Query('limit') limit: number = 10,
+) {
+  return this.purchaseOrderService.findAll({ search, status, page, limit });
+}
+
+
+@Get('stats')
+async getInvoiceStats() {
+  return this.purchaseOrderService.getInvoiceStats();
+}
+
+
 
   @Get(':id')
   findOne(@Param('id') id: number) {

@@ -1,5 +1,6 @@
 import { IsArray, IsDateString, IsEnum, IsNotEmpty, IsNumber, IsOptional, IsString, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
+import { OrderStatus } from 'src/common/enums/order-status.enum';
 
 class PurchaseItemDto {
   @IsNumber()
@@ -27,9 +28,10 @@ export class CreatePurchaseOrderDto {
   orderDate: string;
 
  
-
-  @IsEnum(['PENDING', 'RECEIVED', 'PAID'])
-  status: 'PENDING' | 'RECEIVED' | 'PAID';
+ @IsEnum(OrderStatus)
+  status: OrderStatus;
+ /* @IsEnum(['PENDING', 'RECEIVED', 'PAID'])
+  status: 'PENDING' | 'RECEIVED' | 'PAID';*/
 
   @IsEnum(['cash', 'transfer', 'check'])
   paymentMethod: 'cash' | 'transfer' | 'check';

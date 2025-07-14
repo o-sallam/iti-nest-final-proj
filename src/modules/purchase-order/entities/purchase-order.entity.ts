@@ -1,6 +1,7 @@
 import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { PurchaseOrderItem } from "./purchase-order-item.entity";
 import { Supplier } from "src/modules/supplier/entities/supplier.entity";
+import { OrderStatus } from 'src/common/enums/order-status.enum'; // غيّر المسار حسب مكان الملف
 
 @Entity()
 export class PurchaseOrder {
@@ -21,11 +22,12 @@ orderDate: Date;
 dueDate: Date;
 
 
-   @Column({ nullable: true })
+   @Column()
   invoiceNumber: string;
 
-  @Column()
-  status: 'PENDING' | 'RECEIVED'  | 'PAID' | 'overdue'|'cancelled';
+  @Column({ type: 'enum', enum: OrderStatus , nullable: true,})
+status: OrderStatus;
+
   @Column({ nullable: true })
   paymentMethod: 'cash' | 'transfer' | 'check';
 
@@ -35,6 +37,9 @@ dueDate: Date;
   @OneToMany(() => PurchaseOrderItem, item => item.purchaseOrder, { cascade: true })
   items: PurchaseOrderItem[];
 
-  @Column({ nullable: true })
+  @Column()
   totalAmount: number;
+ @Column({ nullable: true })
+paidAmount: number;
+
 }

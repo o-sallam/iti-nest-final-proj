@@ -7,6 +7,7 @@ import { PurchaseOrder } from './entities/purchase-order.entity';
 import { CreatePurchaseOrderDto } from './dto/create-purchase-order.dto';
 import { UpdatePurchaseOrderDto } from './dto/update-purchase-order.dto';
 import { Supplier } from '../supplier/entities/supplier.entity';
+import { OrderStatus } from 'src/common/enums/order-status.enum'; // غيّر المسار حسب مكان الملف
 
 @Injectable()
 export class PurchaseOrderService {
@@ -41,11 +42,73 @@ export class PurchaseOrderService {
     return await this.purchaseOrderRepository.save(newOrder);
   }
 
-  async findAll(): Promise<PurchaseOrder[]> {
+ /* async findAll(): Promise<PurchaseOrder[]> {
     return this.purchaseOrderRepository.find({
       relations: ['supplier'], 
     });
+  }*/
+ async findAll(params: {
+  search?: string;
+  status?: string;
+  page?: number;
+  limit?: number;
+}): Promise<{
+  data: PurchaseOrder[];
+  total: number;
+  totalPages: number;
+  page: number;
+  limit: number;
+}> {
+  const { search = '', status = 'all', page = 1, limit = 10 } = params;
+
+  const skip = (page - 1) * limit;
+
+  const query = this.purchaseOrderRepository
+    .createQueryBuilder('purchaseOrder')
+    .leftJoinAndSelect('purchaseOrder.supplier', 'supplier');
+
+  if (search) {
+    query.andWhere(
+      '(LOWER(purchaseOrder.invoiceNumber) LIKE :search OR LOWER(supplier.name) LIKE :search)',
+      { search: `%${search.toLowerCase()}%` },
+    );
   }
+
+  // فلترة حسب الحالة
+  if (status !== 'all') {
+    query.andWhere('purchaseOrder.status = :status', { status });
+  }
+
+  const [data, total] = await query
+    .skip(skip)
+    .take(limit)
+    .orderBy('purchaseOrder.orderDate', 'DESC')
+    .getManyAndCount();
+
+  const totalPages = Math.ceil(total / limit);
+
+  return {
+    data,
+    total,
+    totalPages,
+    page,
+    limit,
+  };
+}
+
+async getInvoiceStats() {
+  const [paid, pending, overdue,cancelled, total] = await Promise.all([
+    this.purchaseOrderRepository.count({ where: { status: OrderStatus.PAID } }),
+    this.purchaseOrderRepository.count({ where: { status: OrderStatus.PENDING } }),
+    this.purchaseOrderRepository.count({ where: { status: OrderStatus.OVERDUE } }),
+        this.purchaseOrderRepository.count({ where: { status:  OrderStatus.CANCELLED } }),
+
+    this.purchaseOrderRepository.count(),
+  ]);
+
+  return { paid, pending, overdue,cancelled,  total };
+}
+
 
   async findOne(id: number): Promise<PurchaseOrder> {
     const order = await this.purchaseOrderRepository.findOne({
@@ -76,7 +139,7 @@ export class PurchaseOrderService {
     }
   }
 
-  async updateStatus(id: number, status: 'PENDING' | 'RECEIVED') {
+  async updateStatus(id: number,  status: OrderStatus) {
     const order = await this.findOne(id);
     order.status = status;
     return this.purchaseOrderRepository.save(order);
