@@ -11,7 +11,7 @@ export class Supplier {
   @Column()
   contactNumber: string;
 
-  @Column()
+  @Column({ nullable: true})
   email: string;
 
   @Column()
