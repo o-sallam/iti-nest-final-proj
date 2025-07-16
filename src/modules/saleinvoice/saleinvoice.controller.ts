@@ -10,4 +10,9 @@ export class SaleInvoiceController {
     const result = this.saleInvoiceService.create(createSaleInvoiceDto);
     return result;
   }
+
+  @Get()
+  getAllInvoices() {
+    return this.saleInvoiceService.findAll();
+  }
 }

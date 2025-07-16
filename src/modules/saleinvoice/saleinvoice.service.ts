@@ -15,4 +15,8 @@ export class SaleInvoiceService {
     const saleInvoice = this.SaleInvoiceRepo.create({...dto});
     return this.SaleInvoiceRepo.save(saleInvoice);
   }
+
+  findAll() {
+    return this.SaleInvoiceRepo.find();
+  }
 }
