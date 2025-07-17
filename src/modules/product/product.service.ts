@@ -14,6 +14,12 @@ export class ProductService {
     private readonly inventoryRepo: Repository<Inventory>,
   ) {}
 
+  private generateSKU(): string {
+    const random = Math.random().toString(36).substring(2, 8).toUpperCase();
+    const timestamp = Date.now().toString().slice(-4);
+    return `SKU-${random}-${timestamp}`;
+  }
+
   async create(dto: CreateProductDto) {
     try {
       // First, create and save the inventory
@@ -22,6 +28,7 @@ export class ProductService {
       // Then, create the product and assign the saved inventory
       const product = this.productRepo.create({
         ...dto,
+        sku: dto.sku || this.generateSKU(),
         inventory: savedInventory,
       });
       const result = await this.productRepo.save(product);
