@@ -22,6 +22,9 @@ export class Client {
   @Column({ type: 'text', nullable: true })
   address: string;
 
+  @Column({ type: 'numeric', precision: 12, scale: 2, default: 0, name: 'balance' })
+  balance: number;
+
   @CreateDateColumn({
     type: 'timestamptz',
     name: 'created_at',
