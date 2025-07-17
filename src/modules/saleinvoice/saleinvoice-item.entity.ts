@@ -1,20 +1,22 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, Column, ManyToOne, JoinColumn, PrimaryColumn } from 'typeorm';
 import { SaleInvoice } from './saleinvoice.entity';
+import { Product } from '../product/product.entity';
 
 @Entity('sale_invoice_items')
 export class SaleInvoiceItem {
-  @PrimaryGeneratedColumn()
-  id: number;
-
-  @Column()
+  @PrimaryColumn()
   saleInvoiceId: number;
+
+  @PrimaryColumn()
+  productId: number;
 
   @ManyToOne(() => SaleInvoice, (invoice) => invoice.items, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'saleInvoiceId' })
   saleInvoice: SaleInvoice;
 
-  @Column()
-  productId: number;
+  @ManyToOne(() => Product, { eager: true })
+  @JoinColumn({ name: 'productId' })
+  product: Product;
 
   @Column({ type: 'int' })
   quantity: number;

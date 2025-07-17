@@ -21,14 +21,17 @@ export class Product {
   @Column({ type: 'text', nullable: true })
   description: string;
 
-  @Column({ type: 'numeric', precision: 12, scale: 2 })
-  price: number;
-
   @Column({ type: 'varchar', length: 100, unique: true })
   sku: string;
 
   @Column({ default: true })
   isActive: boolean;
+
+  @Column({ type: 'numeric', precision: 12, scale: 2, default: 0 })
+  purchase_price: number;
+
+  @Column({ type: 'numeric', precision: 12, scale: 2, default: 0 })
+  sale_price: number;
 
   @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;
