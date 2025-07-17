@@ -16,6 +16,11 @@ export class ProductController {
     return this.productService.findAll();
   }
 
+  @Get('with-stock-warehouse')
+  getAllWithStockAndWarehouse() {
+    return this.productService.findAllWithStockAndWarehouse();
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.productService.findOne(+id);

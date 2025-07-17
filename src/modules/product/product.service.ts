@@ -38,6 +38,30 @@ export class ProductService {
     return this.productRepo.find({ relations: ['inventory'] });
   }
 
+  async findAllWithStockAndWarehouse() {
+    const products = await this.productRepo
+      .createQueryBuilder('product')
+      .leftJoin('product.inventory', 'inventory')
+      .leftJoin('inventory.warehouse', 'warehouse')
+      .select([
+        'product.id',
+        'product.name',
+        'product.sku',
+        'inventory.quantity',
+        'warehouse.name',
+      ])
+      .addSelect('inventory.quantity', 'stock')
+      .addSelect('warehouse.name', 'warehouse_name')
+      .getRawMany();
+
+    return products.map(row => ({
+      product_id: row.product_id,
+      product_name: row.product_name,
+      warehouse_name: row.warehouse_name,
+      stock: row.stock,
+    }));
+  }
+
   findOne(id: number) {
     return this.productRepo.findOne({
       where: { id },

@@ -26,5 +26,5 @@ export class Warehouse {
   updatedAt: Date;
 
   @OneToMany(() => Inventory, (inventory) => inventory.warehouse)
-  inventories: Inventory[];
+  inventories: Promise<Inventory[]>;
 }

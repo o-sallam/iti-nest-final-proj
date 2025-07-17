@@ -17,7 +17,7 @@ export class WarehouseService {
   }
 
   findAll() {
-    return this.warehouseRepo.find({ relations: ['inventories'] });
+    return this.warehouseRepo.find();
   }
 
   findOne(id: number) {
