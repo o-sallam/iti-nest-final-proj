@@ -11,8 +11,12 @@ export class InventoryController {
     return this.service.findAll();
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() dto: UpdateInventoryDto) {
-    return this.service.update(+id, dto);
+  @Patch(':warehouseId/:productId')
+  update(
+    @Param('warehouseId') warehouseId: string,
+    @Param('productId') productId: string,
+    @Body() dto: UpdateInventoryDto
+  ) {
+    return this.service.update(+warehouseId, +productId, dto);
   }
 }

@@ -14,8 +14,8 @@ export class InventoryService {
     return this.inventoryRepo.find({ relations: ['product'] });
   }
 
-  async update(id: number, dto: UpdateInventoryDto) {
-    const inventory = await this.inventoryRepo.findOneBy({ id });
+  async update(warehouseId: number, productId: number, dto: UpdateInventoryDto) {
+    const inventory = await this.inventoryRepo.findOneBy({ warehouseId, productId });
     if (!inventory) return null;
     inventory.quantity = dto.quantity;
     return this.inventoryRepo.save(inventory);

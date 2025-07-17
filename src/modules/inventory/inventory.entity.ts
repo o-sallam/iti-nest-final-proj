@@ -1,19 +1,30 @@
 import {
     Entity,
-    PrimaryGeneratedColumn,
     Column,
-    OneToOne,
+    ManyToOne,
+    PrimaryColumn,
     CreateDateColumn,
     UpdateDateColumn,
-    ManyToOne,
+    JoinColumn,
 } from 'typeorm';
 import { Product } from 'src/modules/product/product.entity';
 import { Warehouse } from 'src/modules/warehouse/warehouse.entity';
 
 @Entity('inventory')
 export class Inventory {
-    @PrimaryGeneratedColumn()
-    id: number;
+    @PrimaryColumn()
+    warehouseId: number;
+
+    @PrimaryColumn()
+    productId: number;
+
+    @ManyToOne(() => Warehouse, (warehouse) => warehouse.inventories)
+    @JoinColumn({ name: 'warehouseId' })
+    warehouse: Warehouse;
+
+    @ManyToOne(() => Product, (product) => product.inventories)
+    @JoinColumn({ name: 'productId' })
+    product: Product;
 
     @Column({ type: 'int', default: 0 })
     quantity: number;
@@ -23,9 +34,4 @@ export class Inventory {
 
     @UpdateDateColumn()
     updatedAt: Date;
-
-    @OneToOne(() => Product, (product) => product.inventory)
-    product: Product;
-    @ManyToOne(() => Warehouse, (warehouse) => warehouse.inventories)
-    warehouse: Warehouse;
 }

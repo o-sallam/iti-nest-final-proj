@@ -16,9 +16,9 @@ export class ProductController {
     return this.productService.findAll();
   }
 
-  @Get('with-stock-warehouse')
-  getAllWithStockAndWarehouse() {
-    return this.productService.findAllWithStockAndWarehouse();
+  @Get('with-quantity-warehouse')
+  getAllWithQuantityAndWarehouse() {
+    return this.productService.findAllWithQuantityAndWarehouse();
   }
 
   @Get(':id')

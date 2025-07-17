@@ -22,17 +22,23 @@ export class ProductService {
 
   async create(dto: CreateProductDto) {
     try {
-      // First, create and save the inventory
-      const inventory = this.inventoryRepo.create({ quantity: dto.quantity });
-      const savedInventory = await this.inventoryRepo.save(inventory);
-      // Then, create the product and assign the saved inventory
+      // Create the product first
       const product = this.productRepo.create({
         ...dto,
         sku: dto.sku || this.generateSKU(),
-        inventory: savedInventory,
       });
-      const result = await this.productRepo.save(product);
-      return result;
+      const savedProduct = await this.productRepo.save(product);
+      // Create the inventory and link to product
+      const inventory = this.inventoryRepo.create({
+        quantity: dto.quantity,
+        product: savedProduct,
+      });
+      await this.inventoryRepo.save(inventory);
+      // Optionally, you can return the product with inventories
+      return this.productRepo.findOne({
+        where: { id: savedProduct.id },
+        relations: ['inventories'],
+      });
     } catch (e) {
       console.error('Error creating product:', e);
       return {
@@ -42,52 +48,47 @@ export class ProductService {
   }
 
   findAll() {
-    return this.productRepo.find({ relations: ['inventory'] });
+    return this.productRepo.find({ relations: ['inventories'] });
   }
 
-  async findAllWithStockAndWarehouse() {
+  async findAllWithQuantityAndWarehouse() {
     const products = await this.productRepo
       .createQueryBuilder('product')
-      .leftJoin('product.inventory', 'inventory')
-      .leftJoin('inventory.warehouse', 'warehouse')
+      .innerJoin('product.inventories', 'inventory')
+      .innerJoin('inventory.warehouse', 'warehouse')
       .select([
-        'product.id',
-        'product.name',
-        'product.sku',
-        'inventory.quantity',
-        'warehouse.name',
+        'product.id AS product_id',
+        'product.name AS product_name',
+        'warehouse.name AS warehouse_name',
+        'inventory.quantity AS quantity',
       ])
-      .addSelect('inventory.quantity', 'stock')
-      .addSelect('warehouse.name', 'warehouse_name')
       .getRawMany();
 
-    return products.map(row => ({
-      product_id: row.product_id,
-      product_name: row.product_name,
-      warehouse_name: row.warehouse_name,
-      stock: row.stock,
-    }));
+    return products;
   }
 
   findOne(id: number) {
     return this.productRepo.findOne({
       where: { id },
-      relations: ['inventory'],
+      relations: ['inventories'],
     });
   }
 
   async update(id: number, dto: UpdateProductDto) {
     const product = await this.productRepo.findOne({
       where: { id },
-      relations: ['inventory'],
+      relations: ['inventories'],
     });
     if (!product) return null;
 
     Object.assign(product, dto);
-    if (dto.quantity !== undefined && product.inventory) {
-      product.inventory.quantity = dto.quantity;
+    // Update quantity for all inventories if provided
+    if (dto.quantity !== undefined && product.inventories) {
+      for (const inventory of product.inventories) {
+        inventory.quantity = dto.quantity;
+        await this.inventoryRepo.save(inventory);
+      }
     }
-
     return this.productRepo.save(product);
   }
 

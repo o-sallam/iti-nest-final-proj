@@ -6,6 +6,7 @@ import {
   UpdateDateColumn,
   OneToOne,
   JoinColumn,
+  OneToMany,
 } from 'typeorm';
 import { Inventory } from 'src/modules/inventory/inventory.entity';
 
@@ -35,7 +36,6 @@ export class Product {
   @UpdateDateColumn({ type: 'timestamptz' })
   updatedAt: Date;
 
-  @OneToOne(() => Inventory, (inventory) => inventory.product, { cascade: true })
-  @JoinColumn()
-  inventory: Inventory;
+  @OneToMany(() => Inventory, (inventory) => inventory.product)
+  inventories: Inventory[];
 }
