@@ -26,7 +26,7 @@ export class ProductService {
       // Create the product first
       const product = this.productRepo.create({
         ...dto,
-        sku: dto.sku || this.generateSKU(),
+        sku:this.generateSKU(),
       });
       const savedProduct = await this.productRepo.save(product);
       // Create the inventory and link to product
