@@ -26,7 +26,7 @@ export class SaleInvoiceService {
     if (!client) {
       throw new Error(`Client with id ${dto.clientId} not found`);
     }
-    const oldBalance = client.balance;
+    const oldBalance = +client.balance;
 
     // Create sale invoice
     const saleInvoice = this.SaleInvoiceRepo.create({
