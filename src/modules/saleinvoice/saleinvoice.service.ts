@@ -33,6 +33,7 @@ export class SaleInvoiceService {
       clientId: dto.clientId,
       warehouseId: dto.warehouseId,
       date: new Date(),
+      paid: dto.paid,
     });
     const savedInvoice = await this.SaleInvoiceRepo.save(saleInvoice);
 
@@ -52,6 +53,7 @@ export class SaleInvoiceService {
       if (inventory.quantity < itemDto.quantity) throw new Error(`Not enough stock for product ${itemDto.productId} in warehouse ${dto.warehouseId}`);
       inventory.quantity -= itemDto.quantity;
       await this.inventoryRepo.save(inventory);
+      // No need to use itemDto.total, always calculate as salePrice * quantity
     }
 
     // Fetch invoice with items to use the getter
@@ -78,16 +80,14 @@ export class SaleInvoiceService {
 
     return invoices.map(invoice => {
       const totalAmount = invoice.totalAmount;
-      const paid = totalAmount - (invoice.client.balance - (invoice.client.balance - totalAmount + (totalAmount - (invoice.client.balance - (invoice.client.balance - totalAmount)))));
       const lastBalance = invoice.client.balance;
-
       return {
         sale_invoice_id: invoice.id,
         date: invoice.date,
         client_name: invoice.client.name,
-        old_balance: invoice.client.balance - totalAmount + paid,
+        old_balance: invoice.client.balance - totalAmount + invoice.paid,
         total_amount: totalAmount,
-        paid: paid,
+        paid: invoice.paid,
         last_balance: lastBalance,
       };
     });
@@ -104,16 +104,15 @@ export class SaleInvoiceService {
     if (!invoice) return null;
 
     const totalAmount = invoice.totalAmount;
-    const paid = totalAmount - (invoice.client.balance - (invoice.client.balance - totalAmount + (totalAmount - (invoice.client.balance - (invoice.client.balance - totalAmount)))));
     const lastBalance = invoice.client.balance;
 
     return {
       sale_invoice_id: invoice.id,
       date: invoice.date,
       client_name: invoice.client.name,
-      old_balance: invoice.client.balance - totalAmount + paid,
+      old_balance: invoice.client.balance - totalAmount + invoice.paid,
       total_amount: totalAmount,
-      paid: paid,
+      paid: invoice.paid,
       last_balance: lastBalance,
     };
   }

@@ -25,6 +25,9 @@ export class SaleInvoice {
   @JoinColumn({ name: 'warehouseId' })
   warehouse: Warehouse;
 
+  @Column({ type: 'numeric', precision: 12, scale: 2, default: 0 })
+  paid: number;
+
   @OneToMany(() => SaleInvoiceItem, (item) => item.saleInvoice, { cascade: true })
   items: SaleInvoiceItem[];
 
