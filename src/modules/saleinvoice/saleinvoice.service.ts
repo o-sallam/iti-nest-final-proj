@@ -58,8 +58,7 @@ export class SaleInvoiceService {
     }
 
     // Update client balance
-    const remainingAmount = totalAmount - dto.paid;
-    client.balance += remainingAmount;
+    client.balance = oldBalance + (totalAmount - dto.paid);
     await this.ClientRepo.save(client);
 
     return this.findOneWithDetails(savedInvoice.id);
