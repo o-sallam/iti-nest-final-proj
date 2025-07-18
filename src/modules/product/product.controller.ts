@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { CreateProductDto, UpdateProductDto } from './product.dto';
 
@@ -16,9 +16,14 @@ export class ProductController {
     return this.productService.findAll();
   }
 
-  @Get('with-quantity-warehouse')
-  getAllWithQuantityAndWarehouse() {
+  @Get('with-stock-warehouse')
+  getAllWithStockAndWarehouse() {
     return this.productService.findAllWithQuantityAndWarehouse();
+  }
+
+  @Get('search')
+  async searchByName(@Query('q') q: string, @Query('warehouseId') warehouseId?: string) {
+    return this.productService.searchByName(q, warehouseId ? +warehouseId : undefined);
   }
 
   @Get(':id')

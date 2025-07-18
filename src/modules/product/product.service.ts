@@ -4,6 +4,7 @@ import { Product } from './product.entity';
 import { Repository } from 'typeorm';
 import { CreateProductDto, UpdateProductDto } from './product.dto';
 import { Inventory } from 'src/modules/inventory/inventory.entity';
+import stringSimilarity from 'string-similarity';
 
 @Injectable()
 export class ProductService {
@@ -94,6 +95,37 @@ export class ProductService {
 
   delete(id: number) {
     return this.productRepo.delete(id);
+  }
+
+  async searchByName(q: string, warehouseId?: number) {
+    const allProducts = await this.productRepo.find({ relations: ['inventories'] });
+    if (!q || !q.trim()) return [];
+    const names = allProducts.map(p => p.name);
+    const matches = stringSimilarity.findBestMatch(q, names);
+    // Filter results with at least 0.6 (60%) similarity
+    const filtered = matches.ratings.filter(r => r.rating >= 0.6);
+    // Get the products that match by name
+    let products = allProducts.filter(p => filtered.some(f => f.target === p.name));
+    // If warehouseId is provided, filter by inventory in that warehouse
+    if (warehouseId) {
+      products = products
+        .map(product => {
+          const inventory = product.inventories.find(inv => inv.warehouseId === warehouseId);
+          if (inventory) {
+            return {
+              id: product.id,
+              name: product.name,
+              sku: product.sku,
+              sale_price: product.sale_price,
+              productId: inventory.productId,
+              quantity: inventory.quantity
+            };
+          }
+          return null;
+        })
+        .filter((p): p is any => p !== null);
+    }
+    return products.slice(0, 10);
   }
 }
 
