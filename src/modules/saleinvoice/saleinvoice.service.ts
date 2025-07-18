@@ -5,6 +5,7 @@ import { SaleInvoice } from './saleinvoice.entity';
 import { SaleInvoiceItem } from './saleinvoice-item.entity';
 import { Client } from '../client/client.entity';
 import { CreateSaleInvoiceDto } from './saleinvoice.dto';
+import { Inventory } from '../inventory/inventory.entity';
 
 @Injectable()
 export class SaleInvoiceService {
@@ -15,6 +16,8 @@ export class SaleInvoiceService {
     private readonly SaleInvoiceItemRepo: Repository<SaleInvoiceItem>,
     @InjectRepository(Client)
     private readonly ClientRepo: Repository<Client>,
+    @InjectRepository(Inventory)
+    private readonly inventoryRepo: Repository<Inventory>,
   ) {}
 
   async create(dto: CreateSaleInvoiceDto) {
@@ -28,21 +31,33 @@ export class SaleInvoiceService {
     // Create sale invoice
     const saleInvoice = this.SaleInvoiceRepo.create({
       clientId: dto.clientId,
+      warehouseId: dto.warehouseId,
       date: new Date(),
     });
     const savedInvoice = await this.SaleInvoiceRepo.save(saleInvoice);
 
-    // Create sale invoice items
-    const items = dto.items.map(itemDto => 
-      this.SaleInvoiceItemRepo.create({
-        ...itemDto,
+    // Create sale invoice items and update inventory
+    let totalAmount = 0;
+    for (const itemDto of dto.items) {
+      // Save item
+      const item = this.SaleInvoiceItemRepo.create({
         saleInvoiceId: savedInvoice.id,
-      })
-    );
-    await this.SaleInvoiceItemRepo.save(items);
+        productId: itemDto.productId,
+        quantity: itemDto.quantity,
+        price: itemDto.salePrice,
+      });
+      await this.SaleInvoiceItemRepo.save(item);
+      // Update inventory for this product in the selected warehouse
+      const inventory = await this.inventoryRepo.findOneBy({ warehouseId: dto.warehouseId, productId: itemDto.productId });
+      if (!inventory) throw new Error(`No inventory for product ${itemDto.productId} in warehouse ${dto.warehouseId}`);
+      if (inventory.quantity < itemDto.quantity) throw new Error(`Not enough stock for product ${itemDto.productId} in warehouse ${dto.warehouseId}`);
+      inventory.quantity -= itemDto.quantity;
+      await this.inventoryRepo.save(inventory);
+      // Add to total
+      totalAmount += itemDto.salePrice * itemDto.quantity;
+    }
 
-    // Calculate total amount and update client balance
-    const totalAmount = items.reduce((sum, item) => sum + Number(item.price) * item.quantity, 0);
+    // Update client balance
     const remainingAmount = totalAmount - dto.paid;
     client.balance += remainingAmount;
     await this.ClientRepo.save(client);

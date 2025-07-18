@@ -1,4 +1,5 @@
 export class CreateSaleInvoiceDto {
+  warehouseId: number;
   clientId: number;
   paid: number;
   items: CreateSaleInvoiceItemDto[];
@@ -6,6 +7,8 @@ export class CreateSaleInvoiceDto {
 
 export class CreateSaleInvoiceItemDto {
   productId: number;
+  productName: string;
   quantity: number;
-  price: number;
+  salePrice: number;
+  total: number;
 }
