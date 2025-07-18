@@ -47,6 +47,10 @@ export class AuthService {
     return this.userRepository.findOne({ where: { id } });
   }
 
+  async findAllByRole(role: UserRole): Promise<User[]> {
+    return this.userRepository.find({ where: { role } });
+  }
+
   // Helper method to create a user with hashed password (for seeding)
   async createUser(username: string, password: string, role: UserRole = UserRole.CASHIER): Promise<User> {
     // Check if user already exists

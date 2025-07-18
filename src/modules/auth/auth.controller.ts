@@ -49,4 +49,18 @@ export class AuthController {
       return { message: 'Seeding completed (users may already exist)' };
     }
   }
+
+  @Get('cashiers')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
+  async getAllCashiers() {
+    const cashiers = await this.authService.findAllByRole(UserRole.CASHIER);
+    return cashiers.map(user => ({
+      id: user.id,
+      username: user.username,
+      role: user.role,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+    }));
+  }
 } 
