@@ -37,7 +37,6 @@ export class SaleInvoiceService {
     const savedInvoice = await this.SaleInvoiceRepo.save(saleInvoice);
 
     // Create sale invoice items and update inventory
-    let totalAmount = 0;
     for (const itemDto of dto.items) {
       // Save item
       const item = this.SaleInvoiceItemRepo.create({
@@ -53,9 +52,14 @@ export class SaleInvoiceService {
       if (inventory.quantity < itemDto.quantity) throw new Error(`Not enough stock for product ${itemDto.productId} in warehouse ${dto.warehouseId}`);
       inventory.quantity -= itemDto.quantity;
       await this.inventoryRepo.save(inventory);
-      // Add to total
-      totalAmount += itemDto.salePrice * itemDto.quantity;
     }
+
+    // Fetch invoice with items to use the getter
+    const invoiceWithItems = await this.SaleInvoiceRepo.findOne({
+      where: { id: savedInvoice.id },
+      relations: ['items'],
+    });
+    const totalAmount = invoiceWithItems ? invoiceWithItems.totalAmount : 0;
 
     // Update client balance
     client.balance = oldBalance + (totalAmount - dto.paid);
@@ -73,7 +77,7 @@ export class SaleInvoiceService {
       .getMany();
 
     return invoices.map(invoice => {
-      const totalAmount = invoice.items.reduce((sum, item) => sum + Number(item.price) * item.quantity, 0);
+      const totalAmount = invoice.totalAmount;
       const paid = totalAmount - (invoice.client.balance - (invoice.client.balance - totalAmount + (totalAmount - (invoice.client.balance - (invoice.client.balance - totalAmount)))));
       const lastBalance = invoice.client.balance;
 
@@ -99,7 +103,7 @@ export class SaleInvoiceService {
 
     if (!invoice) return null;
 
-    const totalAmount = invoice.items.reduce((sum, item) => sum + Number(item.price) * item.quantity, 0);
+    const totalAmount = invoice.totalAmount;
     const paid = totalAmount - (invoice.client.balance - (invoice.client.balance - totalAmount + (totalAmount - (invoice.client.balance - (invoice.client.balance - totalAmount)))));
     const lastBalance = invoice.client.balance;
 
