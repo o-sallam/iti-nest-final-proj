@@ -23,6 +23,9 @@ export class User {
   })
   role: UserRole;
 
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  drawer?: string;
+
   @CreateDateColumn()
   createdAt: Date;
 

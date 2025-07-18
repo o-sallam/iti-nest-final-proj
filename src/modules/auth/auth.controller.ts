@@ -59,6 +59,7 @@ export class AuthController {
       id: user.id,
       username: user.username,
       role: user.role,
+      drawer: user.drawer,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
     }));
