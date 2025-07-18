@@ -1,4 +1,4 @@
-import { Controller, Post, Body, HttpCode, HttpStatus, Get, UseGuards } from '@nestjs/common';
+import { Controller, Post, Body, HttpCode, HttpStatus, Get, UseGuards, Request } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthSeeder } from './auth.seeder';
 import { LoginDto, LoginResponseDto, CreateUserDto } from './auth.dto';
@@ -63,5 +63,16 @@ export class AuthController {
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
     }));
+  }
+
+  @Get('drawer')
+  @UseGuards(JwtAuthGuard)
+  async getDrawer(@Request() req) {
+    // req.user.id is set by JwtStrategy
+    const user = await this.authService.findById(req.user.id);
+    if (!user) {
+      return { message: 'User not found' };
+    }
+    return { drawer: user.drawer };
   }
 } 
