@@ -23,8 +23,9 @@ export class User {
   })
   role: UserRole;
 
-  @Column({ type: 'varchar', length: 255, nullable: true })
-  drawer?: string;
+  @Column({ type: 'float', default: 0, nullable: false })
+  // الدرج (drawer): current cashier money
+  drawer: number;
 
   @CreateDateColumn()
   createdAt: Date;

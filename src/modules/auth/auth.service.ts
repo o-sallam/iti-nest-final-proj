@@ -64,6 +64,7 @@ export class AuthService {
       username,
       password: hashedPassword,
       role,
+      drawer: 0, // Always start with 0 for new users
     });
     return this.userRepository.save(user);
   }
