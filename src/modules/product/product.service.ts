@@ -102,8 +102,8 @@ export class ProductService {
     if (!q || !q.trim()) return [];
     const names = allProducts.map(p => p.name);
     const matches = stringSimilarity.findBestMatch(q, names);
-    // Filter results with at least 0.6 (60%) similarity
-    const filtered = matches.ratings.filter(r => r.rating >= 0.6);
+    // Remove the similarity threshold, accept any match
+    const filtered = matches.ratings.filter(r => r.rating > 0);
     // Get the products that match by name
     let products = allProducts.filter(p => filtered.some(f => f.target === p.name));
     // If warehouseId is provided, filter by inventory in that warehouse
