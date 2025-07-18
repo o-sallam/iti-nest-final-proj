@@ -4,7 +4,7 @@ import { Product } from './product.entity';
 import { Repository } from 'typeorm';
 import { CreateProductDto, UpdateProductDto } from './product.dto';
 import { Inventory } from 'src/modules/inventory/inventory.entity';
-import stringSimilarity from 'string-similarity';
+import * as stringSimilarity from 'string-similarity';
 
 @Injectable()
 export class ProductService {
@@ -110,7 +110,7 @@ export class ProductService {
     if (warehouseId) {
       products = products
         .map(product => {
-          const inventory = product.inventories.find(inv => inv.warehouseId === warehouseId);
+          const inventory = product.inventories?.find(inv => inv.warehouseId === warehouseId);
           if (inventory) {
             return {
               id: product.id,
