@@ -6,6 +6,7 @@ import { SaleInvoiceItem } from './saleinvoice-item.entity';
 import { Client } from '../client/client.entity';
 import { CreateSaleInvoiceDto } from './saleinvoice.dto';
 import { Inventory } from '../inventory/inventory.entity';
+import { User } from '../auth/user.entity';
 
 @Injectable()
 export class SaleInvoiceService {
@@ -18,9 +19,11 @@ export class SaleInvoiceService {
     private readonly ClientRepo: Repository<Client>,
     @InjectRepository(Inventory)
     private readonly inventoryRepo: Repository<Inventory>,
+    @InjectRepository(User)
+    private readonly userRepo: Repository<User>,
   ) {}
 
-  async create(dto: CreateSaleInvoiceDto) {
+  async create(dto: CreateSaleInvoiceDto, user: any) {
     // Get client and calculate old balance
     const client = await this.ClientRepo.findOne({ where: { id: dto.clientId } });
     if (!client) {
@@ -66,6 +69,15 @@ export class SaleInvoiceService {
     // Update client balance
     client.balance = oldBalance + (totalAmount - dto.paid);
     await this.ClientRepo.save(client);
+
+    // Update cashier's drawer (add paid value)
+    if (user && user.id) {
+      const cashier = await this.userRepo.findOne({ where: { id: user.id } });
+      if (cashier) {
+        cashier.drawer += dto.paid;
+        await this.userRepo.save(cashier);
+      }
+    }
 
     return this.findOneWithDetails(savedInvoice.id);
   }

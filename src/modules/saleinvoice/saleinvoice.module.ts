@@ -6,9 +6,10 @@ import { SaleInvoice } from './saleinvoice.entity';
 import { SaleInvoiceItem } from './saleinvoice-item.entity';
 import { Client } from '../client/client.entity';
 import { Inventory } from '../inventory/inventory.entity';
+import { User } from '../auth/user.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([SaleInvoice, SaleInvoiceItem, Client, Inventory])],
+  imports: [TypeOrmModule.forFeature([SaleInvoice, SaleInvoiceItem, Client, Inventory, User])],
   providers: [SaleInvoiceService],
   controllers: [SaleInvoiceController],
 })
