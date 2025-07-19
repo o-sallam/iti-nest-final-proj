@@ -8,11 +8,15 @@ export class CreateProductDto {
   @IsString()
   description?: string;
 
-  @IsNumber()
-  price: number;
-
+  
   @IsNumber()
   quantity: number;
+
+  @IsNumber()
+  sale_price?: number;
+  @IsNumber()
+  purchase_price: number;
+
 }
 
 export class UpdateProductDto {
@@ -26,7 +30,9 @@ export class UpdateProductDto {
   description?: string;
 
   @IsNumber()
-  price?: number;
+  sale_price?: number;
+  @IsNumber()
+  purchase_price: number;
 
   @IsNumber()
   quantity?: number;

@@ -7,7 +7,9 @@ import { PurchaseOrder } from './entities/purchase-order.entity';
 import { CreatePurchaseOrderDto } from './dto/create-purchase-order.dto';
 import { UpdatePurchaseOrderDto } from './dto/update-purchase-order.dto';
 import { Supplier } from '../supplier/entities/supplier.entity';
-import { OrderStatus } from 'src/common/enums/order-status.enum'; // غيّر المسار حسب مكان الملف
+import { OrderStatus } from 'src/common/enums/order-status.enum'; 
+import { Inventory } from '../inventory/inventory.entity';
+import { Warehouse } from '../warehouse/warehouse.entity';
 
 @Injectable()
 export class PurchaseOrderService {
@@ -17,36 +19,76 @@ export class PurchaseOrderService {
 
     @InjectRepository(Supplier)
     private supplierRepository: Repository<Supplier>,
+     @InjectRepository(Inventory)
+        private readonly inventoryRepo: Repository<Inventory>,
+        @InjectRepository(Warehouse)
+  private   readonly warehouseRepo: Repository<Warehouse>,
   ) {}
-
-  async create(createDto: CreatePurchaseOrderDto): Promise<PurchaseOrder> {
-    const supplier = await this.supplierRepository.findOne({
-      where: { id: createDto.supplierId },
-    });
-
-    if (!supplier) {
-      throw new NotFoundException(`Supplier with ID ${createDto.supplierId} not found`);
-    }
-  const remainingAmount = createDto.totalAmount - createDto.paidAmount;
-  if (remainingAmount  !== 0) {
-    supplier.accountBalance += remainingAmount;
-
-    await this.supplierRepository.save(supplier);
-  }
-
-    const newOrder = this.purchaseOrderRepository.create({
-      ...createDto,
-      supplier,
-    });
-
-    return await this.purchaseOrderRepository.save(newOrder);
-  }
 
  /* async findAll(): Promise<PurchaseOrder[]> {
     return this.purchaseOrderRepository.find({
       relations: ['supplier'], 
     });
   }*/
+
+
+async create(createDto: CreatePurchaseOrderDto): Promise<PurchaseOrder> {
+  const supplier = await this.supplierRepository.findOne({
+    where: { id: createDto.supplierId },
+  });
+
+  if (!supplier) {
+    throw new NotFoundException(`Supplier with ID ${createDto.supplierId} not found`);
+  }
+
+  const remainingAmount = createDto.totalAmount - createDto.paidAmount;
+  if (remainingAmount !== 0) {
+    supplier.accountBalance += remainingAmount;
+    await this.supplierRepository.save(supplier);
+  }
+
+  const newOrder = this.purchaseOrderRepository.create({
+    ...createDto,
+    supplier,
+  });
+  const savedOrder = await this.purchaseOrderRepository.save(newOrder);
+
+  for (const item of createDto.items) {
+    const { productId, warehouseId, quantity } = item;
+
+    const warehouse = await this.warehouseRepo.findOne({
+      where: { id: warehouseId },
+    });
+
+    if (!warehouse) {
+      throw new NotFoundException(`Warehouse with ID ${warehouseId} not found`);
+    }
+
+    let inventory = await this.inventoryRepo.findOne({
+      where: { productId, warehouseId },
+    });
+
+    if (inventory) {
+      inventory.quantity += quantity;
+    } else {
+      inventory = this.inventoryRepo.create({
+        productId,
+        warehouseId,
+        quantity,
+        warehouse,
+        product: { id: productId } as any, 
+      });
+    }
+
+    await this.inventoryRepo.save(inventory);
+  }
+
+  return savedOrder;
+}
+
+
+
+
  async findAll(params: {
   search?: string;
   status?: string;

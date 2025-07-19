@@ -14,6 +14,9 @@ class PurchaseItemDto {
 
   @IsNumber()
   total: number;
+  @IsNumber()
+  warehouseId : number;
+
 }
 
 export class CreatePurchaseOrderDto {
@@ -30,8 +33,7 @@ export class CreatePurchaseOrderDto {
  
  @IsEnum(OrderStatus)
   status: OrderStatus;
- /* @IsEnum(['PENDING', 'RECEIVED', 'PAID'])
-  status: 'PENDING' | 'RECEIVED' | 'PAID';*/
+ 
 
   @IsEnum(['cash', 'transfer', 'check'])
   paymentMethod: 'cash' | 'transfer' | 'check';
