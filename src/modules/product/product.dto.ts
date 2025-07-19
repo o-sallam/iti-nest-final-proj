@@ -8,15 +8,11 @@ export class CreateProductDto {
   @IsString()
   description?: string;
 
-  
-  @IsNumber()
-  quantity: number;
-
   @IsNumber()
   sale_price?: number;
+
   @IsNumber()
   purchase_price: number;
-
 }
 
 export class UpdateProductDto {
@@ -24,17 +20,12 @@ export class UpdateProductDto {
   name?: string;
 
   @IsString()
-  sku?: string;
-
-  @IsString()
   description?: string;
 
   @IsNumber()
   sale_price?: number;
-  @IsNumber()
-  purchase_price: number;
 
   @IsNumber()
-  quantity?: number;
+  purchase_price: number;
 }
 
