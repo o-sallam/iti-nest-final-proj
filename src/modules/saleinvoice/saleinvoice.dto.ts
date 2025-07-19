@@ -7,7 +7,6 @@ export class CreateSaleInvoiceDto {
 
 export class CreateSaleInvoiceItemDto {
   productId: number;
-  productName: string;
   quantity: number;
   salePrice: number;
 }
